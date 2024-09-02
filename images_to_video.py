@@ -6,9 +6,9 @@ from PIL import Image
 
 
 # Video Generating function 
-def generate_video(): 
-    image_folder = 'select_image' # make sure to use your folder 
-    video_name = 'mygeneratedvideo.mp4'
+def generate_video(project_name): 
+    image_folder = f'./out_image/{project_name}/' # make sure to use your folder 
+    video_name = f'{project_name}_out.mp4'
       
     images = [img for img in os.listdir(image_folder) 
               if img.endswith(".jpg") or
@@ -21,7 +21,7 @@ def generate_video():
     numbers = []
 
     for img in images:
-        numbers.append(int(img.split(".jpg")[0].split("frame")[-1]))
+        numbers.append(int(img.split(".jpg")[0].split("_")[-1]))
 
     images = np.array(images)
     images = images[np.argsort(numbers)]
@@ -46,4 +46,4 @@ def generate_video():
   
   
 # Calling the generate_video function 
-generate_video() 
+generate_video("SixStep") 

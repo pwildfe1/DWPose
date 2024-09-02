@@ -1,15 +1,19 @@
 # Importing all necessary libraries 
 import cv2 
 import os 
-  
+
+video_file = "SixStepVideo.mov"
+
 # Read the video from specified path 
-cam = cv2.VideoCapture("IMG_3782.mov") 
+cam = cv2.VideoCapture(video_file)
+
+directory = f'./source_image/frames/{os.path.splitext(video_file)[0]}'
   
 try: 
       
     # creating a folder named data 
-    if not os.path.exists('source_image'): 
-        os.makedirs('source_image') 
+    if not os.path.exists(directory): 
+        os.makedirs(directory) 
   
 # if not created then raise error 
 except OSError: 
@@ -21,11 +25,11 @@ currentframe = 0
 while(True): 
       
     # reading from frame 
-    ret,frame = cam.read() 
+    ret,frame = cam.read()
   
     if ret: 
         # if video is still left continue creating images 
-        name = './source_image/frame' + str(currentframe) + '.jpg'
+        name = f'{directory}/frame' + str(currentframe) + '.jpg'
         print ('Creating...' + name) 
   
         # writing the extracted images 
@@ -39,4 +43,4 @@ while(True):
   
 # Release all space and windows once done 
 cam.release() 
-cv2.destroyAllWindows() 
+cv2.destroyAllWindows()

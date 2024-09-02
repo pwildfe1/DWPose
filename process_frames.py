@@ -1,6 +1,7 @@
 import os
 import logging
 import json
+from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,15 +22,13 @@ register_all_modules()
 
 
 
-def process_frame(model, visualizer, frame):
+def process_frame(model, visualizer, frame, out_file):
 
     # inference a single image
     batch_results = inference_topdown(model, frame)
     results = merge_data_samples(batch_results)
 
     # print(results.pred_instances.keypoints)
-
-    out_file = "out_image/" + os.path.split(frame)[1]
 
     # show the results
     img = imread(frame, channel_order='rgb')
@@ -42,12 +41,6 @@ def process_frame(model, visualizer, frame):
         show=False,
         show_kpt_idx=False,
         out_file=out_file)
-
-    if out_file is not None:
-        print_log(
-            f'the output image has been saved at {out_file}',
-            logger='current',
-            level=logging.INFO)
 
     return results
 
@@ -82,7 +75,7 @@ def build_model(config_file, checkpoint_file):
 """
 
 
-def main():
+def main(sequence_name):
     config_file = 'td-hm_hrnet-w48_8xb32-210e_coco-256x192.py'
     checkpoint_file = 'td-hm_hrnet-w48_8xb32-210e_coco-256x192-0e67c616_20220913.pth'
 
@@ -92,9 +85,24 @@ def main():
     #         'Nose', 'L_Eye', 'R_Eye', 'L_Ear', 'R_Ear', 'L_Shoulder', 'R_Shoulder', 'L_Elbow', 'R_Elbow', 'L_Wrist',
     #         'R_Wrist', 'L_Hip', 'R_Hip', 'L_Knee', 'R_Knee', 'L_Ankle', 'R_Ankle', 'Pelvis', 'Neck')
 
-    for frame in os.listdir("source_image"):
-        results = process_frame(model, visualizer, "source_image/" + frame)
-        out_file = "out_image/" + os.path.split(frame)[1]
+    files = []
+    indices = []
+
+    source_directory = f"./frames/{sequence_name}/"
+    out_directory = f"./out_image/{sequence_name}/"
+
+    for frame in os.listdir(source_directory):
+        indices.append(int(os.path.splitext(frame)[0].split("_")[-1]))
+        files.append(frame)
+    
+    indices = np.array(indices)
+    files = list(np.array(files)[np.argsort(indices)])
+
+    for frame in tqdm(files, desc="Processing files"):
+        if os.path.exists(out_directory) == False:
+            os.mkdir(out_directory)
+        out_file = out_directory + os.path.split(frame)[1]
+        results = process_frame(model, visualizer, source_directory + frame, out_file)
         img = plt.imread(out_file)
 
         points = results.pred_instances.keypoints[0]
@@ -122,7 +130,4 @@ def main():
         # break
 
 
-main()
-
-t = np.load("out_image/frame0.npy")
-print(t.shape)
+main("SixStep")
