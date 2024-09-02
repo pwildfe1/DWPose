@@ -3,7 +3,7 @@ import cv2
 import os 
   
 # Read the video from specified path 
-cam = cv2.VideoCapture("source_video.mov") 
+cam = cv2.VideoCapture("IMG_3782.mov") 
   
 try: 
       
